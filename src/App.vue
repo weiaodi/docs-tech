@@ -6,9 +6,11 @@
     </div> -->
     <div class="zd-editor" :style="editStyle">
       <span :style="cursorStyle" class="zd-cursor"></span>
-      <p class="zd-block" v-for="block in blocksForRender" v-html="block.html">
-       
+      <p class="zd-block" v-for="block in blocksForRender">
+        <div v-html="block.html"></div>
+        <div class="overlay" :style="block.overlayStyle"></div>
       </p>
+      
     </div>
   </div>
 </template>
@@ -154,8 +156,15 @@
         });
         this.blocks = blocks;
         this.blocksForRender =  this.blocks .map((item) => {
+           let html = item.html.replace(/\s/g,'&nbsp;');
+           let size = sizeUtil.getHtmlSize(html);
           return {
-            html: item.html.replace(/\s/g,'&nbsp;')
+            html: html,
+            overlayStyle:{
+              width: size.width+'px',
+              height: size.height+'px',
+              // display:'none'
+            }
           }
         });
 
