@@ -8,12 +8,12 @@
     padding: 0;
   }
 
-  .kc {
+  .zd {
     width: 800px;
     margin: 0 auto;
   }
 
-  .kc-editor {
+  .zd-editor {
     position: relative;
     min-height: 800px;
     padding: 15px;
@@ -23,13 +23,13 @@
     background: #fff;
     font-size: 14px;
 
-    .kc-block {
+    .zd-block {
       line-height: 20px;
       height: 20px;
     }
   }
 
-  /* .kc-editor:focus {
+  /* .zd-editor:focus {
     outline: none;
   } */
   @keyframes cursor {
@@ -54,7 +54,7 @@
     }
   }
 
-  .kc-cursor {
+  .zd-cursor {
     position: absolute;
     top: 15px;
     left: 15px;
@@ -68,7 +68,7 @@
 
   }
 
-  .kc-toolbar {
+  .zd-toolbar {
     >span {
       background: #fff;
       color: #333333;
@@ -79,13 +79,13 @@
   }
 </style>
 <template>
-  <div class="kc">
-    <div class="kc-toolbar">
-      <span v-for="item in toolbarMenus" class="kc-toolbar-{{item.key}}">{{item.name||item.key}}</span>
+  <div class="zd">
+    <div class="zd-toolbar">
+      <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span>
     </div>
-    <div class="kc-editor">
-      <span :style="cursorStyle" class="kc-cursor"></span>
-      <p class="kc-block" v-for="block in blocks">
+    <div class="zd-editor">
+      <span :style="cursorStyle" class="zd-cursor"></span>
+      <p class="zd-block" v-for="block in blocks">
         {{block.html}}
       </p>
     </div>
@@ -232,7 +232,7 @@
         };
       },
       updateCursor() {
-        var blockCount = this.blocks.length;
+        var bloczdount = this.blocks.length;
         let block = this.getCurrentBlock();
         this.cursorStyle = {
           left: 15 + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX)).width + 'px',
