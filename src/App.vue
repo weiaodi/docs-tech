@@ -6,8 +6,8 @@
     </div>
     <div class="zd-editor" :style="editStyle">
       <span :style="cursorStyle" class="zd-cursor"></span>
-      <p class="zd-block" v-for="block in blocks">
-        {{block.html}}
+      <p class="zd-block" v-for="block in blocksForRender" v-html="block.html">
+       
       </p>
     </div>
   </div>
@@ -105,9 +105,10 @@
       },
       updateSpacers(spacers) {
         this.model.spacers = spacers;
+        // console.log(JSON.stringify(spacers))
         this.updateBlocks();
       },
-      getNewSpacerStartIndex() {
+      getCursorSpacerIndex() {
         let blocksLocationXCount = 0;
         if (this.cursorInfo.locationY > 0) {
           let list = this.blocks.slice(0,this.cursorInfo.locationY);
@@ -120,7 +121,7 @@
       },
       updateModel(command) {
         if (command.type === 'insertCharter') {
-          var startIndex = this.getNewSpacerStartIndex();
+          var startIndex = this.getCursorSpacerIndex();
           let newSpacers = spacerUtil.insertStr(this.model.spacers, startIndex, command.value);
           this.updateSpacers(newSpacers);
           if (command.value === '\n') {
@@ -130,13 +131,14 @@
             this.cursorInfo.locationX += 1;
           }
         } else if (command.type === 'deleteCharter') {
-          let deleteCharterValue = this.model.spacers.substring(this.model.spacers.length - 1, this.model.spacers
-            .length);
-          this.updateSpacers(this.model.spacers.substr(0, this.model.spacers.length - 1));
+          // debugger;
+            var lastBlock = this.getCurrentBlock();
+            let deleteCharterValue = this.model.spacers.substring(this.getCursorSpacerIndex()-1, this.getCursorSpacerIndex());
+            this.updateSpacers(spacerUtil.removeStr(this.model.spacers,this.getCursorSpacerIndex()-1));
 
           if (deleteCharterValue === '\n') {
             this.cursorInfo.locationY -= 1;
-            this.cursorInfo.locationX = this.getCurrentBlock().html.length;
+            this.cursorInfo.locationX = lastBlock.html.length;
           } else {
             this.cursorInfo.locationX -= 1;
           }
@@ -151,7 +153,13 @@
           }
         });
         this.blocks = blocks;
+        this.blocksForRender =  this.blocks .map((item) => {
+          return {
+            html: item.html.replace(/\s/g,'&nbsp;')
+          }
+        });
 
+        
       },
       getCurrentBlock() {
         this.updateBlocks();
