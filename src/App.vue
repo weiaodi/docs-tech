@@ -4,7 +4,7 @@
     <!-- <div class="zd-toolbar">
       <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span>
     </div> -->
-    <div class="zd-editor" :style="editStyle">
+    <div class="zd-editor" :style="editStyle" @mousedown="onEditorMouseDown" @mouseup="onEditorMouseUp" @mousemove="onEditorMouseMove">
       <span :style="cursorStyle" class="zd-cursor"></span>
       <p class="zd-block" v-for="block in blocksForRender">
         <div v-html="block.html"></div>
@@ -183,6 +183,20 @@
           left: PAGE_CONFIG.PADDING_LEFT + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX)).width + 'px',
           top: PAGE_CONFIG.PADDING_TOP + 20 * this.cursorInfo.locationY + 'px'
         }
+      },
+      onEditorMouseDown(){
+        this.startMouse = true;
+        this.curorMoveInfo = [0,0,0,0] //左上，右上，左下，右下
+      },
+      onEditorMouseUp(){
+        this.startMouse = false;
+
+      },
+      onEditorMouseMove(e){
+        if(this.startMouse){
+           console.log(e);
+        }
+       
       }
     },
     mounted() {
