@@ -138,8 +138,10 @@
         if (keyboardUtil.isArrowUp(e)) {
           this.cursorInfo.locationY > 0 ? this.cursorInfo.locationY-- : this.cursorInfo.locationY;
         } else if (keyboardUtil.isArrowDown(e)) {
-          if ((this.cursorInfo.locationY + 1) < this.blocks.length) {
+          if (this.cursorInfo.locationY < this.blocks.length-1) {
             this.cursorInfo.locationY++;
+          }else{
+            
           }
         } else if (keyboardUtil.isArrowLeft(e)) {
           this.cursorInfo.locationX > 0 ? this.cursorInfo.locationX-- : this.cursorInfo.locationX;
