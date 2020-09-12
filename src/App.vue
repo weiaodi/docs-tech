@@ -1,83 +1,4 @@
-<style lang="less">
-  body {
-    background: #f7f7f7;
-  }
 
-  * {
-    margin: 0;
-    padding: 0;
-  }
-
-  .zd {
-    width: 800px;
-    margin: 0 auto;
-  }
-
-  .zd-editor {
-    position: relative;
-    min-height: 800px;
-    padding: 15px;
-    border: 1px solid #efeff1;
-    margin-bottom: 15px;
-    box-shadow: 0 0 6px 0px rgba(218, 218, 218, 0.5);
-    background: #fff;
-    font-size: 14px;
-
-    .zd-block {
-      line-height: 20px;
-      height: 20px;
-    }
-  }
-
-  /* .zd-editor:focus {
-    outline: none;
-  } */
-  @keyframes cursor {
-    0% {
-      opacity: 0;
-    }
-
-    25% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0;
-    }
-
-    75% {
-      opacity: 1;
-    }
-
-    100% {
-      opacity: 0;
-    }
-  }
-
-  .zd-cursor {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 1px;
-    height: 20px;
-    background: #333;
-    display: inline-block;
-    animation-name: cursor;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
-
-  }
-
-  .zd-toolbar {
-    >span {
-      background: #fff;
-      color: #333333;
-      display: inline-block;
-      padding: 2px 4px;
-
-    }
-  }
-</style>
 <template>
   <div class="zd">
     <div class="zd-toolbar">
@@ -93,7 +14,6 @@
 </template>
 
 <script>
-  import HelloWorld from './components/HelloWorld.vue'
   import keyboardUtil from './libs/keyboardUtil';
   import sizeUtil from './libs/sizeUtil';
   import spacerUtil from './libs/spacerUtil';
@@ -124,7 +44,6 @@
       }
     },
     components: {
-      HelloWorld
     },
     methods: {
       onKeyDown(e) {
@@ -132,7 +51,6 @@
       },
       onKeyUp(e) {
         var value = e.key;
-        // console.log(e);
         let command;
 
         if (keyboardUtil.isArrowUp(e)) {
