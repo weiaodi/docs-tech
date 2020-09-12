@@ -4,7 +4,7 @@
     <div class="zd-toolbar">
       <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span>
     </div>
-    <div class="zd-editor">
+    <div class="zd-editor" :style="editStyle">
       <span :style="cursorStyle" class="zd-cursor"></span>
       <p class="zd-block" v-for="block in blocks">
         {{block.html}}
@@ -17,7 +17,10 @@
   import keyboardUtil from './libs/keyboardUtil';
   import sizeUtil from './libs/sizeUtil';
   import spacerUtil from './libs/spacerUtil';
-
+ const PAGE_CONFIG = {
+   PADDING_TOP:15,
+   PADDING_LEFT:15
+ }
   export default {
     name: 'App',
     data() {
@@ -40,7 +43,13 @@
           locationY: 0
         },
         cursorStyle: {},
-        blocks: []
+        blocks: [],
+        editStyle:{
+           paddingTop: PAGE_CONFIG.PADDING_TOP+'px',
+           paddingBottom: PAGE_CONFIG.PADDING_TOP+'px',
+           paddingLeft: PAGE_CONFIG.PADDING_LEFT+'px',
+           paddingRight: PAGE_CONFIG.PADDING_LEFT+'px'
+        }
       }
     },
     components: {
@@ -63,7 +72,6 @@
           }
         } else if (keyboardUtil.isArrowLeft(e)) {
           this.cursorInfo.locationX > 0 ? this.cursorInfo.locationX-- : this.cursorInfo.locationX;
-          // console.log(this.cursorInfo.locationX)
         } else if (keyboardUtil.isArrowRight(e)) {
           if ((this.cursorInfo.locationX + 1) <= this.getCurrentBlock().html.length) {
             this.cursorInfo.locationX++;
@@ -155,8 +163,8 @@
         var bloczdount = this.blocks.length;
         let block = this.getCurrentBlock();
         this.cursorStyle = {
-          left: 15 + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX)).width + 'px',
-          top: 20 * this.cursorInfo.locationY + 15 + 'px'
+          left: PAGE_CONFIG.PADDING_LEFT + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX)).width + 'px',
+          top: PAGE_CONFIG.PADDING_TOP + 20 * this.cursorInfo.locationY + 'px'
         }
       }
     },
