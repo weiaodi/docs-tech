@@ -1,9 +1,9 @@
 
 <template>
   <div class="zd">
-    <div class="zd-toolbar">
+    <!-- <div class="zd-toolbar">
       <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span>
-    </div>
+    </div> -->
     <div class="zd-editor" :style="editStyle">
       <span :style="cursorStyle" class="zd-cursor"></span>
       <p class="zd-block" v-for="block in blocksForRender" v-html="block.html">
