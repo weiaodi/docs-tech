@@ -61,7 +61,7 @@
         e.preventDefault();
       },
       onKeyUp(e) {
-        var value = e.key;
+        let value = e.key;
         let command;
 
         if (keyboardUtil.isArrowUp(e)) {
@@ -123,7 +123,7 @@
         return result;
       },
       getCurrentCursorLoctionX(){
-        var lastBlock = this.getCurrentBlock();
+        let lastBlock = this.getCurrentBlock();
         return lastBlock.html.length;
       },
       updateCurrentCursorLocationX(){
@@ -131,7 +131,7 @@
       },
       updateModel(command) {
         if (command.type === 'insertCharter') {
-          var startIndex = this.getCursorSpacerIndex();
+          let startIndex = this.getCursorSpacerIndex();
           let newSpacers = spacerUtil.insertStr(this.model.spacers, startIndex, command.value);
           this.updateSpacers(newSpacers);
           if (command.value === '\n') {
@@ -156,7 +156,7 @@
       },
       updateBlocks() {
         let spacerBlocks = this.model.spacers.split('\n');
-        var blocks = spacerBlocks.map((item) => {
+        let blocks = spacerBlocks.map((item) => {
           return {
             html: item
           }
@@ -184,7 +184,7 @@
         };
       },
       updateCursor() {
-        var bloczdount = this.blocks.length;
+        let bloczdount = this.blocks.length;
         let block = this.getCurrentBlock();
         this.cursorStyle = {
           left: PAGE_CONFIG.PADDING_LEFT + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX)).width + 'px',
