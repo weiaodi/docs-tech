@@ -90,7 +90,7 @@
           if (keyboardUtil.isEnter(e)) {
             value = '\n';
           }
-          if (keyboardUtil.isShift(e) || keyboardUtil.isMeta(e)) {
+          if (keyboardUtil.isShift(e) || keyboardUtil.isMeta(e) ||keyboardUtil.isAlt(e)) {
 
           } else if (keyboardUtil.isBackspace(e)) {
             command = {

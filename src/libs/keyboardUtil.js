@@ -11,6 +11,7 @@ export default {
     isBackspace:  createIncludeCodeFn('Backspace'),
     isMetaLeft:createIncludeCodeFn('MetaLeft'),
     isMeta:createIncludeCodeFn('Meta'),
+    isAlt:createIncludeCodeFn('Alt'),
     isArrowUp:createIncludeCodeFn('ArrowUp'),
     isArrowDown:createIncludeCodeFn('ArrowDown'),
     isArrowLeft:createIncludeCodeFn('ArrowLeft'),
