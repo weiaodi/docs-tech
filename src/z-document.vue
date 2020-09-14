@@ -27,6 +27,10 @@
     INSERT_CHARTER: 'INSERT_CHARTER',
     DELETE_CHARTER: 'DELETE_CHARTER'
   }
+  const EDIT_SOURCE_CONFIG = {
+    USER_EDIT:"USER_EDIT",
+    UNDO:'UNDO'
+  }
   export default {
     name: 'App',
     data() {
@@ -63,7 +67,7 @@
     methods: {
       unDo() {
         let command = this.undoCommands.pop();
-        this.flush(command,{channel:'undo'});
+        this.flush(command,{editSource:EDIT_SOURCE_CONFIG.UNDO});
       },
       onKeyUp(e) {
         e.preventDefault();
@@ -123,10 +127,10 @@
         e.preventDefault();
         return false;
       },
-      flush(command,{channel = 'userEdit'} = {}) {
+      flush(command,{editSource = EDIT_SOURCE_CONFIG.USER_EDIT} = {}) {
         if (command) {
           this.commands.push(command);
-          this.updateModel(command,{channel});
+          this.updateModel(command,{editSource});
         }
         this.updateCursor();
 
@@ -154,11 +158,11 @@
         this.cursorInfo.locationX = this.getCurrentCursorLoctionX();
       },
       updateModel(command, {
-        channel = 'userEdit'
+        editSource = EDIT_SOURCE_CONFIG.USER_EDIT
       }={}) {
         if (command.type === COMMAND_CONFIG.INSERT_CHARTER) {
           let startIndex = command.startIndex;
-          if (channel === 'userEdit') {
+          if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
             this.undoCommands.push({
               type: COMMAND_CONFIG.DELETE_CHARTER,
               startIndex: startIndex + 1
@@ -176,7 +180,7 @@
         } else if (command.type === COMMAND_CONFIG.DELETE_CHARTER) {
           let startIndex = command.startIndex;
           let deleteCharterValue = this.model.spacers.substr(startIndex, 1);
-          if (channel === 'userEdit') {
+          if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
             this.undoCommands.push({
               type: COMMAND_CONFIG.INSERT_CHARTER,
               startIndex: startIndex,
