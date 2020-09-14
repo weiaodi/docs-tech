@@ -63,7 +63,7 @@
       onKeyUp(e) {
         let value = e.key;
         let command;
-
+        console.log(e)
         if (keyboardUtil.isArrowUp(e)) {
           this.cursorInfo.locationY > 0 ? this.cursorInfo.locationY-- : this.cursorInfo.locationY;
           this.updateCurrentCursorLocationX();
@@ -74,16 +74,23 @@
             
           }
         } else if (keyboardUtil.isArrowLeft(e)) {
-          this.cursorInfo.locationX > 0 ? this.cursorInfo.locationX-- : this.cursorInfo.locationX;
+          if(this.cursorInfo.locationX > 0){
+             this.cursorInfo.locationX-- 
+          }else{
+            if(this.cursorInfo.locationY>0){
+              this.cursorInfo.locationY--;
+              this.updateCurrentCursorLocationX();
+            }
+          }
         } else if (keyboardUtil.isArrowRight(e)) {
           if ((this.cursorInfo.locationX + 1) <= this.getCurrentBlock().html.length) {
             this.cursorInfo.locationX++;
           }
         } else {
-          if (keyboardUtil.isEnter(e) || keyboardUtil.isMetaLeft(e)) {
+          if (keyboardUtil.isEnter(e)) {
             value = '\n';
           }
-          if (keyboardUtil.isShift(e)) {
+          if (keyboardUtil.isShift(e) || keyboardUtil.isMeta(e)) {
 
           } else if (keyboardUtil.isBackspace(e)) {
             command = {

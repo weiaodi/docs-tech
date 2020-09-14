@@ -10,6 +10,7 @@ export default {
     isShift:  createIncludeCodeFn('Shift'),
     isBackspace:  createIncludeCodeFn('Backspace'),
     isMetaLeft:createIncludeCodeFn('MetaLeft'),
+    isMeta:createIncludeCodeFn('Meta'),
     isArrowUp:createIncludeCodeFn('ArrowUp'),
     isArrowDown:createIncludeCodeFn('ArrowDown'),
     isArrowLeft:createIncludeCodeFn('ArrowLeft'),
