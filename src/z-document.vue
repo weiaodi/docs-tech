@@ -1,16 +1,16 @@
-
 <template>
   <div class="zd">
     <!-- <div class="zd-toolbar">
       <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span>
     </div> -->
-    <div class="zd-editor" :style="editStyle" @mousedown="onEditorMouseDown" @mouseup="onEditorMouseUp" @mousemove="onEditorMouseMove">
+    <div class="zd-editor" :style="editStyle" @mousedown="onEditorMouseDown" @mouseup="onEditorMouseUp"
+      @mousemove="onEditorMouseMove">
       <span :style="cursorStyle" class="zd-cursor"></span>
       <p class="zd-block" v-for="block in blocksForRender">
         <div v-html="block.html"></div>
         <div class="overlay" :style="block.overlayStyle"></div>
       </p>
-      
+
     </div>
   </div>
 </template>
@@ -19,10 +19,14 @@
   import keyboardUtil from './libs/keyboardUtil';
   import sizeUtil from './libs/sizeUtil';
   import spacerUtil from './libs/spacerUtil';
- const PAGE_CONFIG = {
-   PADDING_TOP:15,
-   PADDING_LEFT:15
- }
+  const PAGE_CONFIG = {
+    PADDING_TOP: 15,
+    PADDING_LEFT: 15
+  }
+  const COMMAND_CONFIG = {
+    INSERT_CHARTER: 'INSERT_CHARTER',
+    DELETE_CHARTER: 'DELETE_CHARTER'
+  }
   export default {
     name: 'App',
     data() {
@@ -46,38 +50,51 @@
         },
         cursorStyle: {},
         blocks: [],
-        editStyle:{
-           paddingTop: PAGE_CONFIG.PADDING_TOP+'px',
-           paddingBottom: PAGE_CONFIG.PADDING_TOP+'px',
-           paddingLeft: PAGE_CONFIG.PADDING_LEFT+'px',
-           paddingRight: PAGE_CONFIG.PADDING_LEFT+'px'
-        }
+        editStyle: {
+          paddingTop: PAGE_CONFIG.PADDING_TOP + 'px',
+          paddingBottom: PAGE_CONFIG.PADDING_TOP + 'px',
+          paddingLeft: PAGE_CONFIG.PADDING_LEFT + 'px',
+          paddingRight: PAGE_CONFIG.PADDING_LEFT + 'px'
+        },
+        undoCommands: []
       }
     },
-    components: {
-    },
+    components: {},
     methods: {
-      onKeyDown(e) {
-        e.preventDefault();
+      unDo() {
+        console.log('unDo');
+        let command = this.undoCommands.pop();
+        if (command.type === COMMAND_CONFIG.DELETE_CHARTER) {
+          this.removeSpackerIndex(command.startIndex);
+        }
       },
       onKeyUp(e) {
+        e.preventDefault();
+      },
+
+      onKeyDown(e) {
         let value = e.key;
         let command;
+        let bCtrlKeyCode = e.ctrlKey || e.metaKey;
+
         console.log(e)
-        if (keyboardUtil.isArrowUp(e)) {
+        if (90 == e.keyCode && bCtrlKeyCode) {
+          this.unDo();
+       
+        }else if (keyboardUtil.isArrowUp(e)) {
           this.cursorInfo.locationY > 0 ? this.cursorInfo.locationY-- : this.cursorInfo.locationY;
           this.updateCurrentCursorLocationX();
         } else if (keyboardUtil.isArrowDown(e)) {
-          if (this.cursorInfo.locationY < this.blocks.length-1) {
+          if (this.cursorInfo.locationY < this.blocks.length - 1) {
             this.cursorInfo.locationY++;
-          }else{
-            
+          } else {
+
           }
         } else if (keyboardUtil.isArrowLeft(e)) {
-          if(this.cursorInfo.locationX > 0){
-             this.cursorInfo.locationX-- 
-          }else{
-            if(this.cursorInfo.locationY>0){
+          if (this.cursorInfo.locationX > 0) {
+            this.cursorInfo.locationX--
+          } else {
+            if (this.cursorInfo.locationY > 0) {
               this.cursorInfo.locationY--;
               this.updateCurrentCursorLocationX();
             }
@@ -90,16 +107,16 @@
           if (keyboardUtil.isEnter(e)) {
             value = '\n';
           }
-          if (keyboardUtil.isShift(e) || keyboardUtil.isMeta(e) ||keyboardUtil.isAlt(e)) {
+          if (keyboardUtil.isShift(e) || keyboardUtil.isMeta(e) || keyboardUtil.isAlt(e)) {
 
           } else if (keyboardUtil.isBackspace(e)) {
             command = {
-              type: 'deleteCharter',
+              type: COMMAND_CONFIG.DELETE_CHARTER,
               value: value
             };
           } else {
             command = {
-              type: 'insertCharter',
+              type: COMMAND_CONFIG.INSERT_CHARTER,
               value: value
             };
           }
@@ -115,30 +132,33 @@
       },
       updateSpacers(spacers) {
         this.model.spacers = spacers;
-        // console.log(JSON.stringify(spacers))
         this.updateBlocks();
       },
       getCursorSpacerIndex() {
         let blocksLocationXCount = 0;
         if (this.cursorInfo.locationY > 0) {
-          let list = this.blocks.slice(0,this.cursorInfo.locationY);
+          let list = this.blocks.slice(0, this.cursorInfo.locationY);
           let count = 0;
-          list.forEach(item=>count+=item.html.length);
-          blocksLocationXCount = count+ this.cursorInfo.locationY;
+          list.forEach(item => count += item.html.length);
+          blocksLocationXCount = count + this.cursorInfo.locationY;
         }
         let result = blocksLocationXCount + this.cursorInfo.locationX;
         return result;
       },
-      getCurrentCursorLoctionX(){
+      getCurrentCursorLoctionX() {
         let lastBlock = this.getCurrentBlock();
         return lastBlock.html.length;
       },
-      updateCurrentCursorLocationX(){
-          this.cursorInfo.locationX =  this.getCurrentCursorLoctionX();
+      updateCurrentCursorLocationX() {
+        this.cursorInfo.locationX = this.getCurrentCursorLoctionX();
       },
       updateModel(command) {
-        if (command.type === 'insertCharter') {
+        if (command.type === COMMAND_CONFIG.INSERT_CHARTER) {
           let startIndex = this.getCursorSpacerIndex();
+          this.undoCommands.push({
+            type: COMMAND_CONFIG.DELETE_CHARTER,
+            startIndex: startIndex
+          });
           let newSpacers = spacerUtil.insertStr(this.model.spacers, startIndex, command.value);
           this.updateSpacers(newSpacers);
           if (command.value === '\n') {
@@ -147,19 +167,28 @@
           } else {
             this.cursorInfo.locationX += 1;
           }
-        } else if (command.type === 'deleteCharter') {
-          // debugger;
-            let deleteCharterValue = this.model.spacers.substring(this.getCursorSpacerIndex()-1, this.getCursorSpacerIndex());
-            this.updateSpacers(spacerUtil.removeStr(this.model.spacers,this.getCursorSpacerIndex()-1));
+        } else if (command.type === COMMAND_CONFIG.DELETE_CHARTER) {
+           this.undoCommands.push({
+            type: COMMAND_CONFIG.INSERT_CHARTER,
+            startIndex: startIndex
+          });
 
-          if (deleteCharterValue === '\n') {
-            this.cursorInfo.locationY -= 1;
-            this.updateCurrentCursorLocationX();
-          } else {
-            this.cursorInfo.locationX -= 1;
-          }
+          let targetSpacerIndex = this.getCursorSpacerIndex() - 1;
+          this.removeSpackerIndex(targetSpacerIndex);
         }
 
+      },
+      removeSpackerIndex(targetSpacerIndex) {
+        let deleteCharterValue = this.model.spacers.substr(targetSpacerIndex, 1);
+        let newSpacers = spacerUtil.removeStr(this.model.spacers, targetSpacerIndex);
+        this.updateSpacers(newSpacers);
+
+        if (deleteCharterValue === '\n') {
+          this.cursorInfo.locationY -= 1;
+          this.updateCurrentCursorLocationX();
+        } else {
+          this.cursorInfo.locationX -= 1;
+        }
       },
       updateBlocks() {
         let spacerBlocks = this.model.spacers.split('\n');
@@ -169,20 +198,20 @@
           }
         });
         this.blocks = blocks;
-        this.blocksForRender =  this.blocks .map((item) => {
-           let html = item.html.replace(/\s/g,'&nbsp;');
-           let size = sizeUtil.getHtmlSize(html);
+        this.blocksForRender = this.blocks.map((item) => {
+          let html = item.html.replace(/\s/g, '&nbsp;');
+          let size = sizeUtil.getHtmlSize(html);
           return {
             html: html,
-            overlayStyle:{
-              width: size.width+'px',
-              height: size.height+'px',
+            overlayStyle: {
+              width: size.width + 'px',
+              height: size.height + 'px',
               // display:'none'
             }
           }
         });
 
-        
+
       },
       getCurrentBlock() {
         this.updateBlocks();
@@ -194,23 +223,24 @@
         let bloczdount = this.blocks.length;
         let block = this.getCurrentBlock();
         this.cursorStyle = {
-          left: PAGE_CONFIG.PADDING_LEFT + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX)).width + 'px',
+          left: PAGE_CONFIG.PADDING_LEFT + sizeUtil.getHtmlSize((block.html).substr(0, this.cursorInfo.locationX))
+            .width + 'px',
           top: PAGE_CONFIG.PADDING_TOP + 20 * this.cursorInfo.locationY + 'px'
         }
       },
-      onEditorMouseDown(){
+      onEditorMouseDown() {
         this.startMouse = true;
-        this.curorMoveInfo = [0,0,0,0] //左上，右上，左下，右下
+        this.curorMoveInfo = [0, 0, 0, 0] //左上，右上，左下，右下
       },
-      onEditorMouseUp(){
+      onEditorMouseUp() {
         this.startMouse = false;
 
       },
-      onEditorMouseMove(e){
-        if(this.startMouse){
-           console.log(e);
+      onEditorMouseMove(e) {
+        if (this.startMouse) {
+          console.log(e);
         }
-       
+
       }
     },
     mounted() {
