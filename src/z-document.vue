@@ -62,11 +62,8 @@
     components: {},
     methods: {
       unDo() {
-        console.log('unDo');
         let command = this.undoCommands.pop();
-        if (command.type === COMMAND_CONFIG.DELETE_CHARTER) {
-          this.removeSpackerIndex(command.startIndex);
-        }
+        this.flush(command,{channel:'undo'});
       },
       onKeyUp(e) {
         e.preventDefault();
@@ -80,8 +77,8 @@
         console.log(e)
         if (90 == e.keyCode && bCtrlKeyCode) {
           this.unDo();
-       
-        }else if (keyboardUtil.isArrowUp(e)) {
+
+        } else if (keyboardUtil.isArrowUp(e)) {
           this.cursorInfo.locationY > 0 ? this.cursorInfo.locationY-- : this.cursorInfo.locationY;
           this.updateCurrentCursorLocationX();
         } else if (keyboardUtil.isArrowDown(e)) {
@@ -112,23 +109,27 @@
           } else if (keyboardUtil.isBackspace(e)) {
             command = {
               type: COMMAND_CONFIG.DELETE_CHARTER,
-              value: value
+              startIndex: this.getCursorSpacerIndex()
             };
           } else {
             command = {
               type: COMMAND_CONFIG.INSERT_CHARTER,
+              startIndex: this.getCursorSpacerIndex(),
               value: value
             };
           }
         }
+        this.flush(command);
+        e.preventDefault();
+        return false;
+      },
+      flush(command,{channel = 'userEdit'} = {}) {
         if (command) {
           this.commands.push(command);
-          this.updateModel(command);
+          this.updateModel(command,{channel});
         }
         this.updateCursor();
 
-        e.preventDefault();
-        return false;
       },
       updateSpacers(spacers) {
         this.model.spacers = spacers;
@@ -152,13 +153,18 @@
       updateCurrentCursorLocationX() {
         this.cursorInfo.locationX = this.getCurrentCursorLoctionX();
       },
-      updateModel(command) {
+      updateModel(command, {
+        channel = 'userEdit'
+      }={}) {
         if (command.type === COMMAND_CONFIG.INSERT_CHARTER) {
-          let startIndex = this.getCursorSpacerIndex();
-          this.undoCommands.push({
-            type: COMMAND_CONFIG.DELETE_CHARTER,
-            startIndex: startIndex
-          });
+          let startIndex = command.startIndex;
+          if (channel === 'userEdit') {
+            this.undoCommands.push({
+              type: COMMAND_CONFIG.DELETE_CHARTER,
+              startIndex: startIndex + 1
+            });
+          }
+
           let newSpacers = spacerUtil.insertStr(this.model.spacers, startIndex, command.value);
           this.updateSpacers(newSpacers);
           if (command.value === '\n') {
@@ -168,12 +174,17 @@
             this.cursorInfo.locationX += 1;
           }
         } else if (command.type === COMMAND_CONFIG.DELETE_CHARTER) {
-           this.undoCommands.push({
-            type: COMMAND_CONFIG.INSERT_CHARTER,
-            startIndex: startIndex
-          });
+          let startIndex = command.startIndex;
+          let deleteCharterValue = this.model.spacers.substr(startIndex, 1);
+          if (channel === 'userEdit') {
+            this.undoCommands.push({
+              type: COMMAND_CONFIG.INSERT_CHARTER,
+              startIndex: startIndex,
+              value: deleteCharterValue
+            });
+          }
 
-          let targetSpacerIndex = this.getCursorSpacerIndex() - 1;
+          let targetSpacerIndex = startIndex - 1;
           this.removeSpackerIndex(targetSpacerIndex);
         }
 
