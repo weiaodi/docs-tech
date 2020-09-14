@@ -1,8 +1,9 @@
 <template>
   <div class="zd">
-    <!-- <div class="zd-toolbar">
-      <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span>
-    </div> -->
+    <div class="zd-toolbar">
+      <button @click="replay">replay command record</button>
+      <!-- <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span> -->
+    </div>
     <div class="zd-editor" :style="editStyle" @mousedown="onEditorMouseDown" @mouseup="onEditorMouseUp"
       @mousemove="onEditorMouseMove">
       <span :style="cursorStyle" class="zd-cursor"></span>
@@ -39,6 +40,12 @@
         model: {
           spacers: ''
         },
+        cursorStyle: {},
+        blocks: [],
+        cursorInfo: {
+          locationX: 0,
+          locationY: 0
+        },
         toolbarMenus: [{
           key: 'bold'
         }, {
@@ -48,12 +55,7 @@
         }, {
           key: 'strikethrough'
         }],
-        cursorInfo: {
-          locationX: 0,
-          locationY: 0
-        },
-        cursorStyle: {},
-        blocks: [],
+      
         editStyle: {
           paddingTop: PAGE_CONFIG.PADDING_TOP + 'px',
           paddingBottom: PAGE_CONFIG.PADDING_TOP + 'px',
@@ -256,6 +258,37 @@
           console.log(e);
         }
 
+      },
+      _replay(commands){
+        if(commands.length === 0){
+          return;
+        }
+          let command = commands[0];
+          
+          setTimeout(()=>{
+             this.flush(command);
+             commands.splice(0,1);
+             this._replay(commands);
+          },200);
+      
+      },
+      replay(){
+        let replayCommands = JSON.parse(JSON.stringify(this.commands));
+        this.clearCommands();
+        this._replay(replayCommands);
+      },
+      clearCommands(){
+
+        this.commands = [];
+        this.model ={
+          spacers: ''
+        };
+        this.cursorStyle = {};
+        this.blocks =  [];
+        this.cursorInfo =  {
+          locationX: 0,
+          locationY: 0
+        };
       }
     },
     mounted() {
