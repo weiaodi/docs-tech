@@ -156,8 +156,12 @@
         let lastBlock = this.getCurrentBlock();
         return lastBlock.html.length;
       },
-      updateCurrentCursorLocationX() {
-        this.cursorInfo.locationX = this.getCurrentCursorLoctionX();
+      updateCurrentCursorLocationX(locationX) {
+        if(typeof locationX === 'undefined'){
+          this.cursorInfo.locationX = this.getCurrentCursorLoctionX();
+        }else{
+          this.cursorInfo.locationX = locationX;
+        }
       },
       updateModel(command, {
         editSource = EDIT_SOURCE_CONFIG.USER_EDIT
@@ -181,6 +185,9 @@
           }
         } else if (command.type === COMMAND_CONFIG.DELETE_CHARTER) {
           let startIndex = command.startIndex;
+          if(startIndex === 0){
+            return;
+          }
           let deleteCharterValue = this.model.spacers.substr(startIndex, 1);
           if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
             this.undoCommands.push({
@@ -197,15 +204,22 @@
       },
       removeSpackerIndex(targetSpacerIndex) {
         let deleteCharterValue = this.model.spacers.substr(targetSpacerIndex, 1);
-        let newSpacers = spacerUtil.removeStr(this.model.spacers, targetSpacerIndex);
-        this.updateSpacers(newSpacers);
+      
 
         if (deleteCharterValue === '\n') {
+           let locationX;
+          if(this.cursorInfo.locationY>0){
+             locationX = this.blocks[this.cursorInfo.locationY-1].html.length;
+          }
+
           this.cursorInfo.locationY -= 1;
-          this.updateCurrentCursorLocationX();
+        
+          this.updateCurrentCursorLocationX(locationX);
         } else {
           this.cursorInfo.locationX -= 1;
         }
+        let newSpacers = spacerUtil.removeStr(this.model.spacers, targetSpacerIndex);
+        this.updateSpacers(newSpacers);
       },
       updateBlocks() {
         let spacerBlocks = this.model.spacers.split('\n');
