@@ -20,6 +20,7 @@ export default {
         // console.log(html)
         if(!globalSizeIframe){
             globalSizeIframe = document.createElement('iframe');
+            globalSizeIframe.style.visibility = 'hidden';
             var iframHtml = '<body><span id="box"></span></body>';
             document.body.appendChild(globalSizeIframe);
             setIframeHTML(globalSizeIframe, iframHtml);
