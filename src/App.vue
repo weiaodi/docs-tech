@@ -66,6 +66,7 @@
 
         if (keyboardUtil.isArrowUp(e)) {
           this.cursorInfo.locationY > 0 ? this.cursorInfo.locationY-- : this.cursorInfo.locationY;
+          this.updateCurrentCursorLocationX();
         } else if (keyboardUtil.isArrowDown(e)) {
           if (this.cursorInfo.locationY < this.blocks.length-1) {
             this.cursorInfo.locationY++;
@@ -121,6 +122,13 @@
         let result = blocksLocationXCount + this.cursorInfo.locationX;
         return result;
       },
+      getCurrentCursorLoctionX(){
+        var lastBlock = this.getCurrentBlock();
+        return lastBlock.html.length;
+      },
+      updateCurrentCursorLocationX(){
+          this.cursorInfo.locationX =  this.getCurrentCursorLoctionX();
+      },
       updateModel(command) {
         if (command.type === 'insertCharter') {
           var startIndex = this.getCursorSpacerIndex();
@@ -134,13 +142,12 @@
           }
         } else if (command.type === 'deleteCharter') {
           // debugger;
-            var lastBlock = this.getCurrentBlock();
             let deleteCharterValue = this.model.spacers.substring(this.getCursorSpacerIndex()-1, this.getCursorSpacerIndex());
             this.updateSpacers(spacerUtil.removeStr(this.model.spacers,this.getCursorSpacerIndex()-1));
 
           if (deleteCharterValue === '\n') {
             this.cursorInfo.locationY -= 1;
-            this.cursorInfo.locationX = lastBlock.html.length;
+            this.updateCurrentCursorLocationX();
           } else {
             this.cursorInfo.locationX -= 1;
           }
