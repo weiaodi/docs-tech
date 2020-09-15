@@ -4,7 +4,7 @@
       <button @click="replay">replay command record</button>
       <!-- <span v-for="item in toolbarMenus" class="zd-toolbar-{{item.key}}">{{item.name||item.key}}</span> -->
     </div>
-    <div class="zd-editor" :style="editStyle" @mousedown="onEditorMouseDown" @mouseup="onEditorMouseUp"
+    <div class="zd-editor" ref="editor" :style="editStyle" @mousedown="onEditorMouseDown" @mouseup="onEditorMouseUp"
       @mousemove="onEditorMouseMove">
       <span :style="cursorStyle" class="zd-cursor"></span>
       <p class="zd-block" v-for="block in blocksForRender">
@@ -17,21 +17,22 @@
 </template>
 
 <script>
-  import keyboardUtil from './libs/keyboardUtil';
+  import Keyboard from './modules/keyboard';
+  import History from './modules/history';
+
   import sizeUtil from './libs/sizeUtil';
   import spacerUtil from './libs/spacerUtil';
+  import {COMMAND_CONFIG} from './libs/commandUtil';
+
+  const EDIT_SOURCE_CONFIG = {
+    UNDO:"UNDO",
+    USER_EDIT:"USER_EDIT"
+  }
   const PAGE_CONFIG = {
     PADDING_TOP: 15,
     PADDING_LEFT: 15
   }
-  const COMMAND_CONFIG = {
-    INSERT_CHARTER: 'INSERT_CHARTER',
-    DELETE_CHARTER: 'DELETE_CHARTER'
-  }
-  const EDIT_SOURCE_CONFIG = {
-    USER_EDIT:"USER_EDIT",
-    UNDO:'UNDO'
-  }
+
   export default {
     name: 'App',
     data() {
@@ -61,73 +62,13 @@
           paddingBottom: PAGE_CONFIG.PADDING_TOP + 'px',
           paddingLeft: PAGE_CONFIG.PADDING_LEFT + 'px',
           paddingRight: PAGE_CONFIG.PADDING_LEFT + 'px'
-        },
-        undoCommands: []
+        }
       }
     },
     components: {},
     methods: {
-      unDo() {
-        let command = this.undoCommands.pop();
-        this.flush(command,{editSource:EDIT_SOURCE_CONFIG.UNDO});
-      },
-      onKeyUp(e) {
-        e.preventDefault();
-      },
-
-      onKeyDown(e) {
-        let value = e.key;
-        let command;
-        let bCtrlKeyCode = e.ctrlKey || e.metaKey;
-
-        console.log(e)
-        if (90 == e.keyCode && bCtrlKeyCode) {
-          this.unDo();
-
-        } else if (keyboardUtil.isArrowUp(e)) {
-          this.cursorInfo.locationY > 0 ? this.cursorInfo.locationY-- : this.cursorInfo.locationY;
-          this.updateCurrentCursorLocationX();
-        } else if (keyboardUtil.isArrowDown(e)) {
-          if (this.cursorInfo.locationY < this.blocks.length - 1) {
-            this.cursorInfo.locationY++;
-          } else {
-
-          }
-        } else if (keyboardUtil.isArrowLeft(e)) {
-          if (this.cursorInfo.locationX > 0) {
-            this.cursorInfo.locationX--
-          } else {
-            if (this.cursorInfo.locationY > 0) {
-              this.cursorInfo.locationY--;
-              this.updateCurrentCursorLocationX();
-            }
-          }
-        } else if (keyboardUtil.isArrowRight(e)) {
-          if ((this.cursorInfo.locationX + 1) <= this.getCurrentBlock().html.length) {
-            this.cursorInfo.locationX++;
-          }
-        } else {
-          if (keyboardUtil.isEnter(e)) {
-            value = '\n';
-          }
-          if (keyboardUtil.isShift(e) || keyboardUtil.isMeta(e) || keyboardUtil.isAlt(e)) {
-
-          } else if (keyboardUtil.isBackspace(e)) {
-            command = {
-              type: COMMAND_CONFIG.DELETE_CHARTER,
-              startIndex: this.getCursorSpacerIndex()
-            };
-          } else {
-            command = {
-              type: COMMAND_CONFIG.INSERT_CHARTER,
-              startIndex: this.getCursorSpacerIndex(),
-              value: value
-            };
-          }
-        }
-        this.flush(command);
-        e.preventDefault();
-        return false;
+      undo() {
+        this.flush(this.history.undo(),{editSource:EDIT_SOURCE_CONFIG.UNDO});
       },
       flush(command,{editSource = EDIT_SOURCE_CONFIG.USER_EDIT} = {}) {
         if (command) {
@@ -169,7 +110,7 @@
         if (command.type === COMMAND_CONFIG.INSERT_CHARTER) {
           let startIndex = command.startIndex;
           if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
-            this.undoCommands.push({
+            this.history.record({
               type: COMMAND_CONFIG.DELETE_CHARTER,
               startIndex: startIndex + 1
             });
@@ -188,13 +129,13 @@
           if(startIndex === 0){
             return;
           }
-          let deleteCharterValue = this.model.spacers.substr(startIndex, 1);
+          let deleteCharterValue = this.model.spacers.substr(startIndex-1, 1);
           if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
-            this.undoCommands.push({
+            this.history.record({
               type: COMMAND_CONFIG.INSERT_CHARTER,
               startIndex: startIndex,
               value: deleteCharterValue
-            });
+            })
           }
 
           let targetSpacerIndex = startIndex - 1;
@@ -303,11 +244,18 @@
           locationX: 0,
           locationY: 0
         };
+      },
+      getRoot(){
+        return window;
+        // return this.$refs.editor;
+      },
+      getSelection(){
+        return [ this.getCursorSpacerIndex(), this.getCursorSpacerIndex()]
       }
     },
     mounted() {
-      window.addEventListener('keyup', this.onKeyUp.bind(this), false);
-      window.addEventListener('keydown', this.onKeyDown.bind(this), false);
+        this.keyboard = new Keyboard(this);
+        this.history = new History();
 
     }
   }
