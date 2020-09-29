@@ -19,9 +19,10 @@
 <script>
   import Keyboard from './modules/keyboard';
   import History from './modules/history';
+  import Model from './modules/model';
+
 
   import sizeUtil from './libs/sizeUtil';
-  import spacerUtil from './libs/spacerUtil';
   import {COMMAND_CONFIG} from './libs/commandUtil';
 
   const EDIT_SOURCE_CONFIG = {
@@ -79,7 +80,7 @@
 
       },
       updateSpacers(spacers) {
-        this.model.spacers = spacers;
+        this.model.updateSpacers(spacers);
         this.updateBlocks();
       },
       getCursorSpacerIndex() {
@@ -116,7 +117,7 @@
             });
           }
 
-          let newSpacers = spacerUtil.insertStr(this.model.spacers, startIndex, command.value);
+          let newSpacers = this.model.insertStr(startIndex, command.value);
           this.updateSpacers(newSpacers);
           if (command.value === '\n') {
             this.cursorInfo.locationY += 1;
@@ -137,14 +138,12 @@
               value: deleteCharterValue
             })
           }
-
-          let targetSpacerIndex = startIndex - 1;
-          this.removeSpackerIndex(targetSpacerIndex);
+          this.removeSpackerIndex(startIndex - 1);
         }
 
       },
       removeSpackerIndex(targetSpacerIndex) {
-        let deleteCharterValue = this.model.spacers.substr(targetSpacerIndex, 1);
+        let deleteCharterValue = this.model.getSpackerAt(targetSpacerIndex);
       
 
         if (deleteCharterValue === '\n') {
@@ -159,11 +158,11 @@
         } else {
           this.cursorInfo.locationX -= 1;
         }
-        let newSpacers = spacerUtil.removeStr(this.model.spacers, targetSpacerIndex);
+        let newSpacers = this.model.removeStr(targetSpacerIndex);
         this.updateSpacers(newSpacers);
       },
       updateBlocks() {
-        let spacerBlocks = this.model.spacers.split('\n');
+        let spacerBlocks = this.model.getSpackers().split('\n');
         let blocks = spacerBlocks.map((item) => {
           return {
             html: item
@@ -177,8 +176,7 @@
             html: html,
             overlayStyle: {
               width: size.width + 'px',
-              height: size.height + 'px',
-              // display:'none'
+              height: size.height + 'px'
             }
           }
         });
@@ -256,6 +254,7 @@
     mounted() {
         this.keyboard = new Keyboard(this);
         this.history = new History();
+        this.model = new Model();
 
     }
   }
