@@ -39,9 +39,6 @@
     data() {
       return {
         commands: [],
-        model: {
-          spacers: ''
-        },
         cursorStyle: {},
         blocks: [],
         cursorInfo: {
@@ -233,9 +230,7 @@
       clearCommands(){
 
         this.commands = [];
-        this.model ={
-          spacers: ''
-        };
+        this.model = new Model();
         this.cursorStyle = {};
         this.blocks =  [];
         this.cursorInfo =  {
