@@ -149,12 +149,11 @@ Keyboard.DEFAULTS = {
         'left': {
             key: 'ArrowLeft',
             handler() {
-                if (this.editor.cursorInfo.locationX > 0) {
-                    this.editor.cursorInfo.locationX--
+                if (this.editor.getCursorInfo().locationX > 0) {
+                    this.editor.updateCursorInfo(--this.editor.getCursorInfo().locationX);
                 } else {
-                    if (this.editor.cursorInfo.locationY > 0) {
-                        this.editor.cursorInfo.locationY--;
-                        this.editor.updateCurrentCursorLocationX();
+                    if (this.editor.getCursorInfo().locationY > 0) {
+                        this.editor.updateCursorInfo(undefined, --this.editor.getCursorInfo().locationY);
                     }
                 }
                 this.editor.flush();
@@ -163,8 +162,8 @@ Keyboard.DEFAULTS = {
         'right': {
             key: 'ArrowRight',
             handler() {
-                if ((this.editor.cursorInfo.locationX + 1) <= this.editor.getCurrentBlock().html.length) {
-                    this.editor.cursorInfo.locationX++;
+                if ((this.editor.getCursorInfo().locationX + 1) <= this.editor.getCurrentBlockCharacterCount()) {
+                    this.editor.updateCursorInfo(++ this.editor.getCursorInfo().locationX);
                     this.editor.flush();
                 }
             }
@@ -172,16 +171,15 @@ Keyboard.DEFAULTS = {
         'up': {
             key: 'ArrowUp',
             handler() {
-                this.editor.cursorInfo.locationY > 0 ? this.editor.cursorInfo.locationY-- : this.editor.cursorInfo.locationY;
-                this.editor.updateCurrentCursorLocationX();
+                this.editor.getCursorInfo().locationY > 0 ?  this.editor.updateCursorInfo(undefined,-- this.editor.getCursorInfo().locationY): null;
                 this.editor.flush();
             },
         },
         'down': {
             key: 'ArrowDown',
             handler() {
-                if (this.editor.cursorInfo.locationY < this.editor.blocks.length - 1) {
-                    this.editor.cursorInfo.locationY++;
+                if (this.editor.getCursorInfo().locationY < this.editor.blocks.length - 1) {
+                    this.editor.updateCursorInfo(undefined, ++ this.editor.getCursorInfo().locationY);
                     this.editor.flush();
                 }
                 
