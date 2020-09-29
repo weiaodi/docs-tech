@@ -12,7 +12,7 @@ const EDIT_SOURCE_CONFIG = {
 }
 class ModelState {
     constructor() {
-        this.history = new History();
+        this.history_ = new History();
         this.model_ = new Model();
         this.commands_ = [];
         this.cursorInfo_ = {
@@ -78,7 +78,7 @@ class ModelState {
         if (command.type === COMMAND_CONFIG.INSERT_CHARTER) {
             let startIndex = command.startIndex;
             if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
-                this.history.record({
+                this.history_.record({
                     type: COMMAND_CONFIG.DELETE_CHARTER,
                     startIndex: startIndex + 1
                 });
@@ -99,7 +99,7 @@ class ModelState {
             }
             let deleteCharterValue = this.model_.getSpackerAt(startIndex - 1);
             if (editSource === EDIT_SOURCE_CONFIG.USER_EDIT) {
-                this.history.record({
+                this.history_.record({
                     type: COMMAND_CONFIG.INSERT_CHARTER,
                     startIndex: startIndex,
                     value: deleteCharterValue
