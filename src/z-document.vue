@@ -106,7 +106,7 @@ export default {
     },
 
     replay() {
-      let _replay = function (commands) {
+      let _replay =  (commands)=> {
         if (commands.length === 0) {
           return;
         }
@@ -115,14 +115,16 @@ export default {
         setTimeout(() => {
           this.flush(command);
           commands.splice(0, 1);
-          this._replay(commands);
+          _replay(commands);
         }, 200);
       };
       let replayCommands = JSON.parse(
         JSON.stringify(this.modeState_.getCommands())
       );
-      this.clearCommands();
-      this._replay(replayCommands);
+    
+      this.blocks = [];
+      this.modeState_ = new ModelState();
+      _replay(replayCommands);
     },
   },
   mounted() {

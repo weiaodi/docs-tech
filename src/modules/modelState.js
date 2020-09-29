@@ -65,14 +65,6 @@ class ModelState {
     getBlocksForRedraw() {
         return this.blocksForRedraw_;
     }
-    clearCommands() {
-        this.Model_State = new ModelState();
-        this.cursorStyle_ = {};
-        this.cursorInfo_ = {
-            locationX: 0,
-            locationY: 0
-        };
-    }
     getSelection() {
         return [this.getCursorSpacerIndex(), this.getCursorSpacerIndex()]
     }
