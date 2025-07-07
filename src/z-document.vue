@@ -11,7 +11,6 @@
         <div v-html="block.html"></div>
         <div class="overlay" :style="block.overlayStyle"></div>
       </p>
-
     </div>
   </div>
 </template>
