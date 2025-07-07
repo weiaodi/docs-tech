@@ -1,0 +1,5 @@
+const EDIT_SOURCE_CONFIG = {
+  UNDO: 'UNDO',
+  USER_EDIT: 'USER_EDIT',
+};
+export { EDIT_SOURCE_CONFIG };
